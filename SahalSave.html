@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>SahalSave | نظام الادخار العالمي</title>
+    <style>
+        body { font-family: sans-serif; background: #0b0f1a; color: white; padding: 20px; text-align: center; }
+        .card { max-width: 400px; margin: auto; background: #161b2c; padding: 25px; border-radius: 20px; border: 1px solid #30363d; }
+        
+        /* تصميم أيقونة التوثيق الأصلية */
+        .verified-icon { width: 22px; height: 22px; margin-right: 8px; vertical-align: middle; fill: #1da1f2; }
+        
+        input, select, button { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid #30363d; background: #0d1117; color: white; }
+        button { background: #6366f1; border: none; font-weight: bold; cursor: pointer; }
+        #res { font-size: 32px; font-weight: bold; color: #10b981; margin: 20px 0; }
+        .advice { background: #1e293b; padding: 15px; border-radius: 15px; border-right: 4px solid #6366f1; text-align: right; line-height: 1.6; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <select id="lang" onchange="updateUI()">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+    </select>
+    
+    <h2 id="title">
+        <svg class="verified-icon" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6l.744-1.442-1.545-.557-.756-1.442-1.637.387-1.127-1.127-1.442.756-.557-1.545-1.442.744c-.65-1.273-2.02-2.148-3.6-2.148-1.58 0-2.95.875-3.6 2.148l-1.442-.744-.557 1.545-1.442-.756-1.127 1.127-1.637-.387-.756 1.442-1.545.557.744 1.442c-.65.65-1.488 1.53-1.488 2.65 0 1.58.875 2.95 2.148 3.6l-.744 1.442 1.545.557.756 1.442 1.637-.387 1.127 1.127 1.442-.756.557 1.545 1.442-.744c.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148l1.442.744.557-1.545 1.442.756 1.127-1.127 1.637.387.756-1.442 1.545-.557-.744-1.442c1.273-.65 2.148-2.02 2.148-3.6zm-11.5 5.5l-4-4 1.414-1.414 2.586 2.586 5.586-5.586 1.414 1.414-7 7z"/></svg>
+        SahalSave
+    </h2>
+    
+    <input type="number" id="amt" placeholder="المبلغ الشهري">
+    
+    <select id="cur">
+        <option value="MAD" data-ar="🇲🇦 المغرب" data-en="🇲🇦 Morocco">MAD</option>
+        <option value="USD" data-ar="🇺🇸 الدولار الأمريكي" data-en="🇺🇸 US Dollar">USD</option>
+        <option value="EUR" data-ar="🇪🇺 اليورو" data-en="🇪🇺 Euro">EUR</option>
+        <option value="GBP" data-ar="🇬🇧 الجنيه الإسترليني" data-en="🇬🇧 British Pound">GBP</option>
+        <option value="SAR" data-ar="🇸🇦 الريال السعودي" data-en="🇸🇦 Saudi Riyal">SAR</option>
+        <option value="AED" data-ar="🇦🇪 الدرهم الإماراتي" data-en="🇦🇪 UAE Dirham">AED</option>
+    </select>
+    
+    <select id="yrs"></select>
+    <button id="btn" onclick="calc()">احسب الآن</button>
+
+    <div id="res"></div>
+    <div id="advice" class="advice"></div>
+</div>
+
+<script>
+    const dict = {
+        ar: { title: "SahalSave", placeholder: "المبلغ الشهري", btn: "احسب الآن", year: "سنة", alert: "يرجى إدخال مبلغ صحيح", adv: ["البداية هي الخطوة الأهم!", "أحسنت! هذا الانضباط يعكس شخصية مسؤولة.", "أنت بطل حقيقي! هذا المبلغ يدل على رؤية واضحة."] },
+        en: { title: "SahalSave", placeholder: "Monthly Amount", btn: "Calculate Now", year: "years", alert: "Please enter a valid amount", adv: ["Starting is the most important step!", "Well done! This discipline reflects a responsible personality.", "You are a true hero! This amount shows clear vision."] }
+    };
+
+    function updateUI() {
+        const l = document.getElementById('lang').value;
+        document.documentElement.dir = (l === 'ar') ? 'rtl' : 'ltr';
+        
+        // الأيقونة الأصلية للتوثيق
+        const verifiedIcon = '<svg class="verified-icon" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6l.744-1.442-1.545-.557-.756-1.442-1.637.387-1.127-1.127-1.442.756-.557-1.545-1.442.744c-.65-1.273-2.02-2.148-3.6-2.148-1.58 0-2.95.875-3.6 2.148l-1.442-.744-.557 1.545-1.442-.756-1.127 1.127-1.637-.387-.756 1.442-1.545.557.744 1.442c-.65.65-1.488 1.53-1.488 2.65 0 1.58.875 2.95 2.148 3.6l-.744 1.442 1.545.557.756 1.442 1.637-.387 1.127 1.127 1.442-.756.557 1.545 1.442-.744c.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148l1.442.744.557-1.545 1.442.756 1.127-1.127 1.637.387.756-1.442 1.545-.557-.744-1.442c1.273-.65 2.148-2.02 2.148-3.6zm-11.5 5.5l-4-4 1.414-1.414 2.586 2.586 5.586-5.586 1.414 1.414-7 7z"/></svg>';
+        document.getElementById('title').innerHTML = verifiedIcon + dict[l].title;
+        
+        document.getElementById('amt').placeholder = dict[l].placeholder;
+        document.getElementById('btn').innerText = dict[l].btn;
+        
+        const curS = document.getElementById('cur');
+        for (let i = 0; i < curS.options.length; i++) {
+            let opt = curS.options[i];
+            opt.text = opt.getAttribute('data-' + l) + " (" + opt.value + ")";
+        }
+
+        const yrS = document.getElementById('yrs');
+        const currentVal = yrS.value || 1;
+        yrS.innerHTML = "";
+        for(let i=1; i<=30; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = i + " " + dict[l].year;
+            yrS.appendChild(opt);
+        }
+        yrS.value = currentVal;
+    }
+
+    function calc() {
+        const l = document.getElementById('lang').value;
+        const amt = parseFloat(document.getElementById('amt').value);
+        const yrs = parseInt(document.getElementById('yrs').value);
+        const cur = document.getElementById('cur').value;
+        
+        if (isNaN(amt) || amt <= 0) return alert(dict[l].alert);
+
+        const total = amt * 12 * yrs;
+        document.getElementById('res').innerText = total.toLocaleString() + " " + cur;
+        
+        const adv = document.getElementById('advice');
+        adv.style.display = "block";
+        
+        if (total < 10000) adv.innerText = dict[l].adv[0];
+        else if (total < 50000) adv.innerText = dict[l].adv[1];
+        else adv.innerText = dict[l].adv[2];
+    }
+
+    updateUI(); 
+</script>
+</body>
+</html>
